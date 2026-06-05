@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loup-Garou Master Elite</title>
+    <style>
+        :root {
+            --bg-main: #0a0a0f;
+            --bg-card: #12121a;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --danger: #ef4444;
+            --success: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --wolf-red: #da1212;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--bg-card);
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #222;
+            border-right: 1px solid #222;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 26px;
+            color: var(--text-main);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: var(--primary);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            background: #222;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-main);
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            flex: 1;
+            background: #1a1a24;
+            border: 1px solid #2e2e3e;
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add { background: var(--primary); color: white; padding: 0 20px; }
+        .btn-add:hover { background: var(--primary-hover); }
+        
+        .btn-start { 
+            background: linear-gradient(135deg, var(--primary), #4338ca); 
+            color: white; 
+            padding: 15px; 
+            font-size: 16px; 
+            width: 100%; 
+            margin-top: auto;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .scroll-list {
+            max-height: 180px;
+            overflow-y: auto;
+            background: #161622;
+            border-radius: 8px;
+            padding: 5px;
+            border: 1px solid #222;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #222;
+        }
+
+        .item-row:last-child { border-bottom: none; }
+
+        .btn-del {
+            background: none;
+            color: var(--danger);
+            font-size: 14px;
+        }
+
+        /* --- شاشة السينما السرية (Secret Screen Overlays) --- */
+        .overlay-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-main);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .reveal-card {
+            background: #111118;
+            border: 2px dashed #333;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 360px;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+        }
+
+        .hold-instruction {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* زر التفاعل باللمس والمطول */
+        .btn-hold-reveal {
+            background: #da1212;
+            color: white;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            font-size: 18px;
+            box-shadow: 0 0 20px rgba(218, 18, 18, 0.4);
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-hold-reveal:active {
+            transform: scale(0.95);
+            background: var(--success);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+        }
+
+        /* حالة الدور المخفي والمظهر */
+        .secret-role-data {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .role-icon {
+            font-size: 65px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .role-title-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="main-app">
+    <header>
+        <h1>Loup-Garou Elite</h1>
+        <p>نظام إدارة وتوزيع الأدوار السري الاحترافي</p>
+    </header>
+
+    <!-- اللاعبون -->
+    <div class="section-title">
+        <span>👥 قائمة اللاعبين الحاضرين</span>
+        <span class="badge" id="p-count">0 لاعبين</span>
+    </div>
+    <div class="input-box">
+        <input type="text" id="p-name" placeholder="اكتب اسم اللاعب هنا...">
+        <button class="btn-add" onclick="addPlayer()">إضافة</button>
+    </div>
+    <div class="scroll-list" id="p-list"></div>
+
+    <!-- الأدوار -->
+    <div class="section-title">
+        <span>🎭 تعديل وتخصيص الأدوار</span>
+        <span class="badge" id="r-count">0 أدوار</span>
+    </div>
+    <div class="input-box" style="flex-direction: column; gap: 8px;">
+        <input type="text" id="r-name" placeholder="اسم الدور الجديد...">
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="r-icon" placeholder="إيموجي أو رابط صورة المظهر...">
+            <button class="btn-add" onclick="addRole()" style="white-space: nowrap;">إضافة دور</button>
+        </div>
+    </div>
+    <div class="scroll-list" id="r-list"></div>
+
+    <button class="btn-start" onclick="initiateGame()">🎯 بدء التوزيع السري الآمن</button>
+</div>
+
+<!-- شاشة الكشف السرية المؤقتة (تظهر عند بدء اللعبة) -->
+<div class="overlay-screen" id="secret-overlay" style="display: none;">
+    <div class="reveal-card">
+        <h2 id="current-player-turn" style="margin-top:0; color: var(--primary);">دور اللاعب: محمد</h2>
+        <p class="hold-instruction" id="instruction-text">تأكد من عدم وجود أي شخص بجانبك، ثم اضغط مطولاً على الزر بالأسفل لرؤية دورك السري.</p>
+        
+        <!-- منطقة عرض البيانات المخفية -->
+        <div id="role-data-zone" class="secret-role-data">
+            <span class="role-icon" id="display-icon">🐺</span>
+            <div class="role-title-text" id="display-role-name">ذئب</div>
+        </div>
+
+        <!-- زر الضغط المطول المحمي -->
+        <button class="btn-hold-reveal" id="hold-btn">إضغط مطولاً</button>
+    </div>
+    
+    <button class="btn-add" id="next-player-btn" style="margin-top: 30px; padding: 12px 30px; display: none;" onclick="nextPlayerTurn()">التالي ➔</button>
+</div>
+
+<script>
+    // قائمة الأدوار الاحترافية الافتراضية المطلوبة
+    let roles = [
+        { id: 1, name: "مواطن صالح (SV)", icon: "🧑🌾" },
+        { id: 2, name: "شوافة (Voyante)", icon: "🔮" },
+        { id: 3, name: "سحارة (Sorcière)", icon: "🧪" },
+        { id: 4, name: "مانيفيك (Chasseur)", icon: "🏹" },
+        { id: 5, name: "ذئب عادي (Loup)", icon: "🐺" },
+        { id: 6, name: "ذئب أسود (Loup Noir)", icon: "🐕⬛" }
+    ];
+
+    let players = [];
+    let gameAssignments = [];
+    let currentExecutionIndex = 0;
+
+    window.onload = () => { renderPlayers(); renderRoles(); setupHoldEvents(); };
+
+    function addPlayer() {
+        const inp = document.getElementById('p-name');
+        if(!inp.value.trim()) return;
+        players.push({ id: Date.now(), name: inp.value.trim() });
+        inp.value = "";
+        renderPlayers();
+    }
+
+    function removePlayer(id) {
+        players = players.filter(p => p.id !== id);
+        renderPlayers();
+    }
+
+    function renderPlayers() {
+        const container = document.getElementById('p-list');
+        document.getElementById('p-count').innerText = `${players.length} لاعبين`;
+        container.innerHTML = players.map(p => `
+            <div class="item-row">
+                <span>👤 ${p.name}</span>
+                <button class="btn-del" onclick="removePlayer(${p.id})">حذف</button>
+            </div>
+        `).join('');
+    }
+
+    function addRole() {
+        const rName = document.getElementById('r-name');
+        const rIcon = document.getElementById('r-icon');
+        if(!rName.value.trim()) return;
+        roles.push({ id: Date.now(), name: rName.value.trim(), icon: rIcon.value.trim() || "🃏" });
+        rName.value = ""; rIcon.value = "";
+        renderRoles();
+    }
+
+    function removeRole(id) {
+        roles = roles.filter(r => r.id !== id);
+        renderRoles();
+    }
+
+    function renderRoles() {
+        const container = document.getElementById('r-list');
+        document.getElementById('r-count').innerText = `${roles.length} أدوار`;
+        container.innerHTML = roles.map(r => {
+            let visual = r.icon.startsWith('http') ? `<img src="${r.icon}" style="width:24px;height:24px;border-radius:50%; margin-left:8px;">` : `<span style="margin-left:8px;">${r.icon}</span>`;
+            return `
+                <div class="item-row">
+                    <div style="display:flex; align-items:center;">${visual} <span>${r.name}</span></div>
+                    <button class="btn-del" onclick="removeRole(${r.id})">حذف</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // خوارزمية التوزيع العشوائي الآمن والبدء
+    function initiateGame() {
+        if(players.length === 0) { alert("الرجاء إضافة لاعبين أولاً!"); return; }
+        if(players.length !== roles.length) { 
+            alert(`غير متطابق! لديك ${players.length} لاعبين و ${roles.length} أدوار. يجب أن يتساوى العددان تماماً للبدء.`); 
+            return; 
+        }
+
+        // خلط الأدوار
+        let shuffled = [...roles].sort(() => Math.random() - 0.5);
+        gameAssignments = players.map((p, i) => ({ player: p.name, role: shuffled[i] }));
+        
+        currentExecutionIndex = 0;
+        document.getElementById('main-app').style.display = "none";
+        document.getElementById('secret-overlay').style.display = "flex";
+        
+        loadPlayerTurn();
+    }
+
+    function loadPlayerTurn() {
+        const currentData = gameAssignments[currentExecutionIndex];
+        document.getElementById('current-player-turn').innerText = `دور اللاعب: ${currentData.player}`;
+        document.getElementById('instruction-text').style.display = "block";
+        document.getElementById('role-data-zone').style.display = "none";
+        document.getElementById('next-player-btn').style.display = "none";
+        document.getElementById('hold-btn').style.display = "flex";
+    }
+
+    // إعداد أحداث الضغط المطول (الحماية القصوى لـ IHM)
+    function setupHoldEvents() {
+        const btn = document.getElementById('hold-btn');
+        
+        const startReveal = (e) => {
+            e.preventDefault();
+            const currentData = gameAssignments[currentExecutionIndex];
+            const zone = document.getElementById('role-data-zone');
+            const iconContainer = document.getElementById('display-icon');
+            
+            if(currentData.role.icon.startsWith('http')) {
+                iconContainer.innerHTML = `<img src="${currentData.role.icon}" style="width:80px;height:80px;border-radius:50%; margin-bottom:10px;">`;
+            } else {
+                iconContainer.innerHTML = currentData.role.icon;
+            }
+            
+            document.getElementById('display-role-name').innerText = currentData.role.name;
+            document.getElementById('instruction-text').style.display = "none";
+            zone.style.display = "block";
+        };
+
+        const stopReveal = () => {
+            document.getElementById('role-data-zone').style.display = "none";
+            document.getElementById('instruction-text').innerText = "تمت رؤية الدور بنجاح. مرر الهاتف للاعب القادم واضغط على زر التالي بالأسفل.";
+            document.getElementById('instruction-text').style.display = "block";
+            document.getElementById('hold-btn').style.display = "none";
+            document.getElementById('next-player-btn').style.display = "inline-block";
+        };
+
+        // أحداث الفأرة للهواتف والكمبيوتر
+        btn.addEventListener('mousedown', startReveal);
+        btn.addEventListener('mouseup', stopReveal);
+        btn.addEventListener('mouseleave', stopReveal);
+
+        // أحداث الشاشات اللمسية للهواتف (Touch Events)
+        btn.addEventListener('touchstart', startReveal);
+        btn.addEventListener('touchend', stopReveal);
+    }
+
+    function nextPlayerTurn() {
+        currentExecutionIndex++;
+        if(currentExecutionIndex < gameAssignments.length) {
+            loadPlayerTurn();
+        } else {
+            // انتهاء توزيع الأدوار بالكامل بنجاح
+            alert("🔥 تم توزيع جميع الأدوار بنجاح وبسرية تامة! يمكن للموديراتور الآن بدء اللعبة ليلة لوغارو سعيدة.");
+            document.getElementById('secret-overlay').style.display = "none";
+            document.getElementById('main-app').style.display = "flex";
+        }
+    }
+</script>
+
+</body>
+</html>
